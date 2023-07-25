@@ -1,0 +1,55 @@
+version: "3"
+services:
+  varnish1:
+    image: varnish:stable
+    container_name: varnish1
+    volumes:
+      - "./default.vcl:/etc/varnish/default.vcl"
+    ports:
+      - "8091:80"
+    tmpfs:
+      - /var/lib/varnish:exec
+    environment:
+      - VARNISH_SIZE=256M
+    command: " -i node1 -p default_keep=300"
+    depends_on:
+      - "httpd"
+  varnish2:
+    image: varnish:stable
+    container_name: varnish2
+    volumes:
+      - "./default.vcl:/etc/varnish/default.vcl"
+    ports:
+      - "8092:80"
+    tmpfs:
+      - /var/lib/varnish:exec
+    environment:
+      - VARNISH_SIZE=256M
+    command: " -i node2 -p default_keep=300"
+    depends_on:
+      - "httpd"
+  varnish3:
+    image: varnish:stable
+    container_name: varnish3
+    volumes:
+      - "./default.vcl:/etc/varnish/default.vcl"
+    ports:
+      - "8093:80"
+    tmpfs:
+      - /var/lib/varnish:exec
+    environment:
+      - VARNISH_SIZE=256M
+    command: "-i node3 -p default_keep=300"
+    depends_on:
+      - "httpd"
+  httpd:
+    image: httpd:latest
+    container_name: httpd
+    ports:
+      - "8080:80"
+    volumes:
+      - ./apache/httpd.conf:/usr/local/apache2/conf/httpd.conf
+      - ./public/:/usr/local/apache2/htdocs/
+networks:
+  varnish_net:
+    driver: bridge
